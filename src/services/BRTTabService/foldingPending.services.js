@@ -1,0 +1,279 @@
+import { getConnection } from "../../constants/db.connection.js";
+import { io } from "../../../index.js"; // adjust path properly
+import oracledb from "oracledb";
+
+export async function getFoldingPending(req, res) {
+  let connection;
+
+  const { companyId } = req.query;
+  try {
+    connection = await getConnection();
+    const sql = `select FR.DOCID,GT.RECEIPTNO from Gtpiecesdefectdet   GT
+    JOIN Gtpiecesdefect A ON A.GTPIECESDEFECTID = GT.GTPIECESDEFECTID
+LEFT JOIN gtfabricreceipt FR ON FR.GTFABRICRECEIPTID = GT.RECEIPTNO
+where A.COMPCODE = ${companyId}
+ORDER BY RECEIPTNO
+`;
+
+    const result = await connection.execute(sql);
+
+    const resp = result.rows.map((row) => {
+      let obj = {};
+      result.metaData.forEach(({ name }, idx) => {
+        obj[name] = row[idx];
+      });
+      return obj;
+    });
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getFoldingPendingById(req, res) {
+  let connection;
+  const { lotNo } = req.params;
+
+  // console.log(foldingId, "lotId getPieces");
+
+  try {
+    connection = await getConnection();
+    const sql = `SELECT 
+    DT.TABLENOTAB,
+    DT.SPLITPCSNO,
+    DT.TOTPOINTSTAB,
+    DT.STARTMTR,
+    DT.ENDMTR,
+    DT.BASEPCSNO,
+    DT.GTDEFECTDETTABID AS subGridId,
+    DT.TABAPPROVAL,
+    DT.RECEIPTMETER,
+    PD.RECEIPTNO,
+    DT.ACTUALMETER,
+    TB.USERNAME AS CHECKERNAME,
+
+    GS.LOOMNO,
+    GS.WEAVERPCSNO
+
+FROM Gtpiecesdefectdet PD
+
+LEFT JOIN Gtdefectdettab DT 
+    ON DT.GTPIECESDEFECTDETID = PD.GTPIECESDEFECTDETID
+
+LEFT JOIN TABUSER TB 
+    ON TB.USERID = DT.CHECKER
+
+LEFT JOIN GTSCHEDULESUNDET GS
+    ON GS.GTFABRICRECEIPTID = PD.RECEIPTNO
+   AND GS.SNO = DT.BASEPCSNO
+
+WHERE PD.RECEIPTNO = ${lotNo}
+  AND NVL(DT.TABAPPROVAL, 'NO') <> 'YES'
+  AND DT.ISCOMPLETED = 'YES'
+  AND DT.GTDEFECTDETTABID IS NOT NULL`;
+
+    const result = await connection.execute(sql);
+
+    // console.log(result?.rows, "result.rows")
+
+    const resp = result.rows.map((row) => {
+      let obj = {};
+      result.metaData.forEach(({ name }, idx) => {
+        obj[name] = row[idx];
+      });
+      return obj;
+    });
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getGradeData(req, res) {
+  console.log("getGrdaeData");
+
+  let connection;
+
+  try {
+    connection = await getConnection();
+    const sql = `select * from GTGRADEDET`;
+
+    console.log(sql, "sql for get grade data");
+
+    const result = await connection.execute(sql);
+
+    const resp = result.rows.map((row) => {
+      let obj = {};
+      result.metaData.forEach(({ name }, idx) => {
+        obj[name] = row[idx];
+      });
+      return obj;
+    });
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getLotDetails(req, res) {
+  let connection;
+  const { pieceId } = req.params;
+  console.log(pieceId, "received params");
+
+  try {
+    connection = await getConnection();
+    const sql = `SELECT  C.CheckingSectionID,
+        S.SECTIONNAME,
+        C.CheckerID,
+        U.USERNAME,
+        C.PieceNo,
+         C.METERS,
+        T.GTCHKTABLEMASTID,
+        M.CHECKINGNO as tableNo
+       
+    FROM CheckerWorkingDetails C
+    JOIN GTCHECKINGMAST S ON S.GTCHECKINGMASTID = C.CheckingSectionID
+    JOIN TABUSER U ON U.USERID = C.CheckerID
+    JOIN CheckerWorkingTables T ON T.AllocationID = C.AllocationID
+    JOIN GTCHKTABLEMAST M ON M.GTCHKTABLEMASTID = T.GTCHKTABLEMASTID
+    WHERE C.PIECEID = ${pieceId}`;
+    console.log(sql, "sql for getLotDetails");
+    const result = await connection.execute(sql);
+
+    const rows = result.rows;
+
+    const workData = {
+      checkingSectionId: rows[0][0],
+      sectionName: rows[0][1],
+      checkerId: rows[0][2],
+      checkerName: rows[0][3],
+      pieceNo: rows[0][4],
+      meters: rows[0][5],
+      tables: rows.map((r) => ({
+        tableId: r[6],
+        checkingNo: r[7],
+      })),
+    };
+
+    res.json({
+      statusCode: 0,
+      data: workData,
+    });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getDefects(req, res) {
+  let connection;
+
+  try {
+    connection = await getConnection();
+    const sql = `select GTPIECEDEFMASTID,DEFECTNAME,POINTS from gtpiecedefmast`;
+    console.log(sql, "sql for getDefects");
+    const result = await connection.execute(sql);
+
+    const resp = result.rows.map((row) => {
+      let obj = {};
+      result.metaData.forEach(({ name }, idx) => {
+        obj[name] = row[idx];
+      });
+      return obj;
+    });
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function updateFolding(req, res) {
+  const { foldingItems, lotNo } = req.body;
+
+  let connection;
+
+  try {
+    connection = await getConnection();
+    for (const piece of foldingItems) {
+      const { TABAPPROVAL, SUBGRIDID } = piece;
+
+      console.log("connection: ", connection);
+      await connection.execute(
+        `UPDATE Gtdefectdettab
+         SET TABAPPROVAL = :status
+         WHERE GTDEFECTDETTABID = :id`,
+        {
+          status: TABAPPROVAL ? "YES" : "",
+          id: SUBGRIDID,
+        },
+      );
+      console.log("piece", piece);
+    }
+
+    await connection.commit();
+
+    return res.status(200).json({
+      message: `Folding entry updated successfully for ${foldingItems?.length} items`,
+    });
+  } catch (error) {
+    await connection.rollback();
+
+    console.error("Update Defect Entry Error:", error);
+
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
+export async function getDefectsById(req, res) {
+  let connection;
+  const { subGridId } = req.params;
+
+  // console.log(foldingId, "lotId getPieces");
+
+  try {
+    connection = await getConnection();
+    const sql = `select B.DEFECTNAME,A.DEFECTPOINS1,A.MTRAT,A.NOOGTIME,A.TOTPOINS1 from Gtpcsdefdet A
+left join gtpiecedefmast B ON  B.GTPIECEDEFMASTID = A.DEFECTNAME1
+WHERE A.GTDEFECTDETTABID = ${subGridId} `;
+
+    const result = await connection.execute(sql);
+
+    // console.log(result?.rows, "result.rows")
+
+    const resp = result.rows.map((row) => {
+      let obj = {};
+      result.metaData.forEach(({ name }, idx) => {
+        obj[name] = row[idx];
+      });
+      return obj;
+    });
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
