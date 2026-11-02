@@ -67,20 +67,12 @@ const Form = ({ onClose, primaryColor, editRole }) => {
   const [checkboxes, setCheckboxes] = useState({});
 
   const pageNames = [
-    { id: 1, label: "Piece Receipt", dbKey: "PIECERECEIPT" },
-    {
-      id: 2,
-      label: "Table and Lot Allocation",
-      dbKey: "TABLEANDLOTALLOCATION",
-    },
-    { id: 3, label: "Defect Entry", dbKey: "DEFECTENTRY" },
-    { id: 4, label: "Folding Pending List", dbKey: "FOLDINGPENDINGLIST" },
-    { id: 5, label: "Piece Folding Entry", dbKey: "PIECEFOLDINGENTRY" },
-    { id: 6, label: "Packing Slip", dbKey: "PACKINGSLIP" },
-    { id: 7, label: "Piece Verification", dbKey: "PIECEVERIFICATION" },
-    { id: 8, label: "Cloth Delivery", dbKey: "CLOTHDELIVERY" },
-    { id: 9, label: "Stock Verification", dbKey: "STOCKVERIFICATION" },
-    { id: 10, label: "Dispatch Verification", dbKey: "DISPATCHVERIFICATION" },
+    { id: 1, label: "Lot Preparation", dbKey: "LOTPREPARATION" },
+    { id: 2, label: "Loading", dbKey: "LOADING" },
+    { id: 3, label: "UnLoading", dbKey: "UNLOADING" },
+    { id: 4, label: "Approval", dbKey: "APPROVAL" },
+    { id: 5, label: "Revert", dbKey: "REVERT" },
+    { id: 6, label: "Inspection", dbKey: "INSPECTION" },
   ];
   // ← Pre-fill form on edit
   useEffect(() => {
@@ -89,7 +81,10 @@ const Form = ({ onClose, primaryColor, editRole }) => {
       // Pre-check checkboxes based on DB values
       const preChecked = {};
       pageNames.forEach((page) => {
-        preChecked[page.id] = editRole[page.dbKey] === "Yes";
+        preChecked[page.id] =
+          editRole[page.dbKey] === "Yes" ||
+          editRole[page.dbKey] == 1 ||
+          editRole[page.dbKey] === true;
       });
       setCheckboxes(preChecked);
     } else {

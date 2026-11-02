@@ -591,36 +591,19 @@ export async function createRole(req, res) {
 
     const userLogValues = {
       roleId,
-
-      pieceReceipt: roles.includes("PIECE RECEIPT") ? "Yes" : "No",
-
-      tableAndLotAllocation: roles.includes("TABLE AND LOT ALLOCATION")
-        ? "Yes"
-        : "No",
-
-      defectEntry: roles.includes("DEFECT ENTRY") ? "Yes" : "No",
-
-      foldingPendingList: roles.includes("FOLDING PENDING LIST") ? "Yes" : "No",
-
-      pieceFoldingEntry: roles.includes("PIECE FOLDING ENTRY") ? "Yes" : "No",
-
-      packingSlip: roles.includes("PACKING SLIP") ? "Yes" : "No",
-
-      pieceVerification: roles.includes("PIECE VERIFICATION") ? "Yes" : "No",
-
-      clothDelivery: roles.includes("CLOTH DELIVERY") ? "Yes" : "No", // ← add
-      stockVerification: roles.includes("STOCK VERIFICATION") ? "Yes" : "No", // ← add
-      dispatchVerification: roles.includes("DISPATCH VERIFICATION")
-        ? "Yes"
-        : "No", // ← add
+      lotPreparation: roles.includes("LOT PREPARATION") ? "Yes" : "No",
+      loading: roles.includes("LOADING") ? "Yes" : "No",
+      unLoading: roles.includes("UNLOADING") ? "Yes" : "No",
+      approval: roles.includes("APPROVAL") ? "Yes" : "No",
+      revert: roles.includes("REVERT") ? "Yes" : "No",
+      inspection: roles.includes("INSPECTION") ? "Yes" : "No",
     };
 
     const tabpagetableSql = `
       INSERT INTO TABPAGE (
-        ROLEID, PIECERECEIPT, TABLEANDLOTALLOCATION, DEFECTENTRY, FOLDINGPENDINGLIST, PIECEFOLDINGENTRY, PACKINGSLIP, PIECEVERIFICATION,CLOTHDELIVERY, STOCKVERIFICATION, DISPATCHVERIFICATION
+        ROLEID, LOTPREPARATION, LOADING, UNLOADING, APPROVAL, REVERT, INSPECTION
       ) VALUES (
-        :roleId, :pieceReceipt,:tableAndLotAllocation,:defectEntry,:foldingPendingList, :pieceFoldingEntry, :packingSlip, :pieceVerification,
-        :clothDelivery, :stockVerification, :dispatchVerification
+        :roleId, :lotPreparation, :loading, :unLoading, :approval, :revert, :inspection
       )
     `;
 
@@ -649,14 +632,11 @@ export async function getRoles(req, res) {
       `SELECT 
         r.ROLEID, 
         r.ROLENAME,
-        p.PIECERECEIPT,
-        p.TABLEANDLOTALLOCATION,
-        p.DEFECTENTRY,
-        p.FOLDINGPENDINGLIST,
-        p.PIECEFOLDINGENTRY,
-        p.PACKINGSLIP,
-        p.PIECEVERIFICATION,
-         p.CLOTHDELIVERY, p.STOCKVERIFICATION, p.DISPATCHVERIFICATION 
+        p.LOTPREPARATION,
+        p.LOADING,
+        p.UNLOADING,
+        p.APPROVAL,
+        p.REVERT, p.INSPECTION
       FROM ROLETAB r
       LEFT JOIN TABPAGE p ON p.ROLEID = r.ROLEID
       ORDER BY r.ROLEID`,
@@ -665,16 +645,12 @@ export async function getRoles(req, res) {
     const rows = result.rows.map((row) => ({
       ROLEID: row[0],
       ROLENAME: row[1],
-      PIECERECEIPT: row[2],
-      TABLEANDLOTALLOCATION: row[3],
-      DEFECTENTRY: row[4],
-      FOLDINGPENDINGLIST: row[5],
-      PIECEFOLDINGENTRY: row[6],
-      PACKINGSLIP: row[7],
-      PIECEVERIFICATION: row[8],
-      CLOTHDELIVERY: row[9], // ← add
-      STOCKVERIFICATION: row[10], // ← add
-      DISPATCHVERIFICATION: row[11],
+      LOTPREPARATION: row[2],
+      LOADING: row[3],
+      UNLOADING: row[4],
+      APPROVAL: row[5],
+      REVERT: row[6],
+      INSPECTION: row[7],
     }));
 
     await connection.close();
@@ -714,35 +690,21 @@ export async function updateRole(req, res) {
 
     await connection.execute(
       `UPDATE TABPAGE SET
-        PIECERECEIPT          = :pieceReceipt,
-        TABLEANDLOTALLOCATION = :tableAndLotAllocation,
-        DEFECTENTRY           = :defectEntry,
-        FOLDINGPENDINGLIST    = :foldingPendingList,
-        PIECEFOLDINGENTRY     = :pieceFoldingEntry,
-        PACKINGSLIP           = :packingSlip,
-        PIECEVERIFICATION     = :pieceVerification,
-        CLOTHDELIVERY         = :clothDelivery,
-        STOCKVERIFICATION     = :stockVerification,
-        DISPATCHVERIFICATION  = :dispatchVerification
+        LOTPREPARATION = :lotPreparation,
+        LOADING        = :loading,
+        UNLOADING      = :unLoading,
+        APPROVAL       = :approval,
+        REVERT         = :revert,
+        INSPECTION     = :inspection
       WHERE ROLEID = :roleId`,
       {
         roleId,
-        pieceReceipt: roles.includes("PIECE RECEIPT") ? "Yes" : "No",
-        tableAndLotAllocation: roles.includes("TABLE AND LOT ALLOCATION")
-          ? "Yes"
-          : "No",
-        defectEntry: roles.includes("DEFECT ENTRY") ? "Yes" : "No",
-        foldingPendingList: roles.includes("FOLDING PENDING LIST")
-          ? "Yes"
-          : "No",
-        pieceFoldingEntry: roles.includes("PIECE FOLDING ENTRY") ? "Yes" : "No",
-        packingSlip: roles.includes("PACKING SLIP") ? "Yes" : "No",
-        pieceVerification: roles.includes("PIECE VERIFICATION") ? "Yes" : "No",
-        clothDelivery: roles.includes("CLOTH DELIVERY") ? "Yes" : "No", // ← was missing
-        stockVerification: roles.includes("STOCK VERIFICATION") ? "Yes" : "No", // ← was missing
-        dispatchVerification: roles.includes("DISPATCH VERIFICATION")
-          ? "Yes"
-          : "No", // ← was missing
+        lotPreparation: roles.includes("LOT PREPARATION") ? "Yes" : "No",
+        loading: roles.includes("LOADING") ? "Yes" : "No",
+        unLoading: roles.includes("UNLOADING") ? "Yes" : "No",
+        approval: roles.includes("APPROVAL") ? "Yes" : "No",
+        revert: roles.includes("REVERT") ? "Yes" : "No",
+        inspection: roles.includes("INSPECTION") ? "Yes" : "No",
       },
     );
 

@@ -26,6 +26,7 @@ function BranchFinYearSelection() {
       userId,
     },
   });
+  console.log(branchData, "branchData");
 
   const branchOptions = branchData?.data?.map((br) => ({
     ...br,
@@ -63,8 +64,9 @@ function BranchFinYearSelection() {
       const selectedBranch = branches?.find(
         (br) => parseInt(br.GTCOMPMASTID) === parseInt(branch),
       );
-
+      const selectedBranchCode = selectedBranch?.COMPCODE;
       secureLocalStorage.setItem("selectedBranch", branch);
+      secureLocalStorage.setItem("selectedBranchCode", selectedBranchCode);
       secureLocalStorage.setItem(
         sessionStorage.getItem("sessionId") + "companyId",
         branch,
@@ -96,7 +98,7 @@ function BranchFinYearSelection() {
         <div className="p-8">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-[##1976D2]">
-              Banu Radha Textiles
+              AMRUTHA KNITS WEAR
             </h2>
             <div className="h-1 w-16 bg-[##1976D2] mx-auto mt-2 rounded-full"></div>
           </div>

@@ -10,21 +10,23 @@ import {
   CLOSE_ICON,
   MENU_ICON,
   LOT_ICON,
+  LOADING_ICON,
   UNLOADING_ICON,
+  APPROVAL_ICON,
+  REVERT_ICON,
   INSPECTION_ICON,
   SUN_ICON,
   MOON_ICON,
 } from "./icons";
 import useOutsideClick from "./CustomHooks/handleOutsideClick";
 import {
+  useGetLotDetailQuery,
   useGetLoadingDetailQuery,
   useGetUnLoadingDetailQuery,
   useGetApprovalDetailQuery,
   useGetRevertDetailQuery,
+  useGetInspectionDetailQuery,
 } from "./redux/services/LotDetailData";
-import { useGetPieceReceiptQuery } from "./redux/services/PieceReceipt";
-import { useGetUserslogQuery } from "./redux/userservice";
-import { useGetInspectionDetailQuery } from "./redux/services/LotDetailData";
 import {
   PieceReceipt,
   TableLotAllot,
@@ -70,8 +72,18 @@ import {
   Paper,
   Button,
 } from "@mui/material";
-import { useGetUsersQuery, useGetRolesQuery } from "./redux/userservice";
+import {
+  useGetUsersQuery,
+  useGetRolesQuery,
+  useGetUserslogQuery,
+} from "./redux/userservice";
 import { styled, alpha } from "@mui/material/styles";
+import LotPreparation from "./Alagendira/LotPreparation";
+import LoadingPreparation from "./Alagendira/LoadingPage";
+import UnLoadingPreparation from "./Alagendira/UnloadingPage";
+import ApprovalPreparation from "./Alagendira/ApprovalPage";
+import Revert from "./Alagendira/Revert";
+import Inspection from "./Alagendira/Inspection";
 
 const colors = {
   primary: "#1976d2",
@@ -155,11 +167,18 @@ const navTranslations = {
     noTabsOpen: "No tabs open",
     selectSidebar: "Select an option from the sidebar to get started",
     openPieceReceipt: "Open Piece Receipt",
+    openLotPreparation: "Open Lot Preparation",
     signOut: "Sign Out",
     createUser: "Create New User",
     users: "Users",
     roles: "Roles",
     // Tab labels
+    lotPreparation: "Lot Preparation",
+    loading: "Loading",
+    unLoading: "UnLoading",
+    approval: "Approval",
+    revert: "Revert",
+    inspection: "Inspection",
     pieceReceipt: "Piece Receipt",
     tableLotAlloc: "Table and Lot Allocation",
     defectEntry: "Defect Entry",
@@ -170,7 +189,7 @@ const navTranslations = {
     clothDelivery: "Cloth Delivery",
     dispatchVerification: "Dispatch Verification",
     stockVerification: "Stock Verification",
-    navText: "Banu Radha Textiles",
+    navText: "AMRUTHA KNITS WEAR",
     activeMonitor: "Active Monitor",
   },
   ta: {
@@ -183,11 +202,18 @@ const navTranslations = {
     noTabsOpen: "தாவல்கள் இல்லை",
     selectSidebar: "தொடங்க பக்கப்பட்டியிலிருந்து ஒன்றை தேர்ந்தெடுக்கவும்",
     openPieceReceipt: "பீஸ் ரசீதை திற",
+    openLotPreparation: "லாட் தயாரிப்பை திற",
     signOut: "வெளியேறு",
     createUser: "புதிய பயனரை உருவாக்கு",
     users: "பயனர்கள்",
     roles: "பாத்திரங்கள்",
     // Tab labels
+    lotPreparation: "லாட் தயாரிப்பு",
+    loading: "ஏற்றுதல்",
+    unLoading: "இறக்குதல்",
+    approval: "ஒப்புதல்",
+    revert: "மீட்டமைத்தல்",
+    inspection: "ஆய்வு",
     pieceReceipt: "பீஸ் ரசீது",
     tableLotAlloc: "மேஜை மற்றும் லாட் ஒதுக்கீடு",
     defectEntry: "குறைபாடு பதிவு",
@@ -198,7 +224,7 @@ const navTranslations = {
     clothDelivery: "துணி வழங்கல்",
     dispatchVerification: "அனுப்புதல் சரிபார்ப்பு",
     stockVerification: "இருப்பு சரிபார்ப்பு",
-    navText: "பானு ராதா டெக்ஸ்டைல்ஸ் ",
+    navText: "அம்ருதா நிட்ஸ் வேர் ",
     activeMonitor: "செயலில் கண்காணிப்பு",
   },
   hi: {
@@ -211,11 +237,18 @@ const navTranslations = {
     noTabsOpen: "कोई टैब खुला नहीं",
     selectSidebar: "शुरू करने के लिए साइडबार से एक विकल्प चुनें",
     openPieceReceipt: "पीस रसीद खोलें",
+    openLotPreparation: "लॉट तैयारी खोलें",
     signOut: "साइन आउट",
     createUser: "नया उपयोगकर्ता बनाएं",
     users: "उपयोगकर्ता",
     roles: "भूमिकाएं",
     // Tab labels
+    lotPreparation: "लॉट तैयारी",
+    loading: "लोडिंग",
+    unLoading: "अनलोडिंग",
+    approval: "अनुमोदन",
+    revert: "रिवर्ट",
+    inspection: "निरीक्षण",
     pieceReceipt: "पीस रसीद",
     tableLotAlloc: "टेबल और लॉट आवंटन",
     defectEntry: "दोष प्रविष्टि",
@@ -226,7 +259,7 @@ const navTranslations = {
     clothDelivery: "कपड़ा डिलीवरी",
     dispatchVerification: "प्रेषण सत्यापन",
     stockVerification: "स्टॉक सत्यापन",
-    navText: "बानू राधा टेक्सटाइल्स चन्हे",
+    navText: "अमृता निट्स वियर",
     activeMonitor: "सक्रिय मॉनिटर",
   },
 };
@@ -484,17 +517,19 @@ const NavbarHeader = ({ onLogout }) => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  const { data: apiResponse } = useGetPieceReceiptQuery();
-  // const { data: loadingResponse } = useGetLoadingDetailQuery();
-  // const { data: UnLoading } = useGetUnLoadingDetailQuery();
-  // const { data: approval } = useGetApprovalDetailQuery();
-  // const { data: revert } = useGetRevertDetailQuery();
-  // const { data: InspectionDet } = useGetInspectionDetailQuery();
+  const { data: apiResponse } = useGetLotDetailQuery();
+  const { data: loadingResponse } = useGetLoadingDetailQuery();
+  const { data: UnLoading } = useGetUnLoadingDetailQuery();
+  const { data: approval } = useGetApprovalDetailQuery();
+  const { data: revert } = useGetRevertDetailQuery();
+  const { data: InspectionDet } = useGetInspectionDetailQuery();
   console.log(apiResponse, "apiResponse");
   useEffect(() => {
-    const uniquePairs = apiResponse?.data?.length;
-    console.log(uniquePairs, "uniquePairs");
-    setCount(uniquePairs || 0);
+    const uniquePairs = new Set(
+      apiResponse?.data?.map((item) => `${item.BATCHNO}_${item.PROCESSNAME}`),
+    );
+    console.log(uniquePairs.size, "uniquePairs");
+    setCount(uniquePairs.size || 0);
   }, [apiResponse]);
 
   const ref = useOutsideClick(() => setShowMobileMenu(false));
@@ -542,101 +577,85 @@ const NavbarHeader = ({ onLogout }) => {
   console.log(currentUser, "currentUser");
 
   const tabs = {
-    "Piece Receipt": <PieceReceipt />,
-    "Table and Lot Allocation": <TableLotAllot />,
-    "Defect Entry": <DefectEntry />,
-    "Folding Pending List": <FoldingPendingList />,
-    "Piece Folding Entry": <PieceFoldingEntry />,
-    "Cloth Delivery": <ClothDelivery />,
-    "Dispatch Verification": <DispatchVerification />,
-    "Stock Verification": <StockVerification />,
-    "Packing Slip": <PackingSlip />,
-    "Piece Verification": <PieceVerification />,
+    "Lot Preparation": <LotPreparation />,
+    Loading: <LoadingPreparation />,
+    UnLoading: <UnLoadingPreparation />,
+    Approval: <ApprovalPreparation />,
+    Revert: <Revert />,
+    Inspection: <Inspection />,
     User: <OutlinedCard />,
     Role: <RoleManagement />,
-    "Active Monitor": <ActiveMonitor />, // ← add
-    FoldingRangeMaster: <FoldingRangeMaster />, // ← add
+    // "Active Monitor": <ActiveMonitor />,
+    // FoldingRangeMaster: <FoldingRangeMaster />,
   };
   const tabData = [
     {
-      name: "Piece Receipt",
-      label: nt.pieceReceipt,
+      name: "Lot Preparation",
+      label: nt.lotPreparation || "Lot Preparation",
       icon: LOT_ICON,
-      value: count,
+      value:
+        count ||
+        new Set(
+          apiResponse?.data?.map(
+            (item) => `${item.BATCHNO}_${item.PROCESSNAME}`,
+          ) || [],
+        ).size,
       gradient: "from-cyan-500 to-blue-600",
-      key: "PIECERECEIPT",
+      key: "LOTPREPARATION",
     },
     {
-      name: "Table and Lot Allocation",
-      label: nt.tableLotAlloc,
-      icon: <FaTableCells />,
-      value: count,
+      name: "Loading",
+      label: nt.loading || "Loading",
+      icon: LOADING_ICON,
+      value: new Set(
+        loadingResponse?.data?.map(
+          (item) => `${item.BATCHNO}_${item.PROCESSNAME}`,
+        ),
+      ).size,
       gradient: "from-emerald-500 to-green-600",
-      key: "TABLEANDLOTALLOCATION",
+      key: "LOADING",
     },
     {
-      name: "Defect Entry",
-      label: nt.defectEntry,
+      name: "UnLoading",
+      label: nt.unLoading || "UnLoading",
       icon: UNLOADING_ICON,
-      value: count,
+      value: new Set(
+        UnLoading?.data?.map((item) => `${item.BATCHNO}_${item.PROCESSNAME}`),
+      ).size,
       gradient: "from-amber-500 to-orange-600",
-      key: "DEFECTENTRY",
+      key: "UNLOADING",
     },
     {
-      name: "Folding Pending List",
-      label: nt.foldingPending,
-      icon: <MdOutlinePendingActions />,
-      value: count,
+      name: "Approval",
+      label: nt.approval || "Approval",
+      icon: APPROVAL_ICON,
+      value: new Set(
+        approval?.data?.map((item) => `${item.BATCHNO}_${item.PROCESSNAME}`),
+      ).size,
       gradient: "from-violet-500 to-purple-600",
-      key: "FOLDINGPENDINGLIST",
+      key: "APPROVAL",
     },
     {
-      name: "Piece Folding Entry",
-      label: nt.pieceFolding,
-      icon: <GiRolledCloth />,
-      value: count,
+      name: "Revert",
+      label: nt.revert || "Revert",
+      icon: REVERT_ICON,
+      value: new Set(
+        revert?.data?.map((item) => `${item.BATCHNO}_${item.PROCESSNAME}`),
+      ).size,
       gradient: "from-rose-500 to-pink-600",
-      key: "PIECEFOLDINGENTRY",
+      key: "REVERT",
     },
     {
-      name: "Piece Verification",
-      label: nt.pieceVerification,
+      name: "Inspection",
+      label: nt.inspection || "Inspection",
       icon: INSPECTION_ICON,
-      value: count,
+      value: new Set(
+        InspectionDet?.data?.map(
+          (item) => `${item.BATCHNO}_${item.PROCESSNAME}`,
+        ),
+      ).size,
       gradient: "from-teal-500 to-cyan-600",
-      key: "PIECEVERIFICATION",
-    },
-    {
-      name: "Packing Slip",
-      label: nt.packingSlip,
-      icon: <RiBillLine />,
-      value: count,
-      gradient: "from-teal-500 to-cyan-600",
-      key: "PACKINGSLIP",
-    },
-    {
-      name: "Cloth Delivery",
-      label: nt.clothDelivery,
-      icon: <RiBillLine />,
-      value: count,
-      gradient: "from-teal-500 to-cyan-600",
-      key: "CLOTHDELIVERY",
-    },
-    {
-      name: "Dispatch Verification",
-      label: nt.dispatchVerification,
-      icon: <RiBillLine />,
-      value: count,
-      gradient: "from-teal-500 to-cyan-600",
-      key: "DispatchVerification",
-    },
-    {
-      name: "Stock Verification",
-      label: nt.stockVerification,
-      icon: <RiBillLine />,
-      value: count,
-      gradient: "from-teal-500 to-cyan-600",
-      key: "StockVerification",
+      key: "INSPECTION",
     },
   ];
 
@@ -644,7 +663,10 @@ const NavbarHeader = ({ onLogout }) => {
   const filteredTabData = isAdmin
     ? tabData
     : tabData.filter((item) => {
-        return currentUserPermission?.[item.key] === "Yes";
+        return (
+          currentUserPermission?.[item.key] === "Yes" ||
+          currentUserPermission?.[item.key] == 1
+        );
       });
 
   const handleTabChange = (name) => {
@@ -936,7 +958,7 @@ const NavbarHeader = ({ onLogout }) => {
                             <ListItemText primary={nt.roles} />
                           </MenuItem>
                           {/* ← Active Monitor — added below Roles */}
-                          <MenuItem
+                          {/* <MenuItem
                             onClick={() => {
                               dispatch(
                                 push({
@@ -982,15 +1004,10 @@ const NavbarHeader = ({ onLogout }) => {
                             }}
                           >
                             <ListItemIcon>
-                              <MdTune
-                                fontSize="20px"
-                                color={colors.primary}
-                              />
+                              <MdTune fontSize="20px" color={colors.primary} />
                             </ListItemIcon>
-                            <ListItemText
-                              primary="Range Master"
-                            />
-                          </MenuItem>
+                            <ListItemText primary="Range Master" />
+                          </MenuItem> */}
                         </Box>
                       )}
 
@@ -1099,17 +1116,17 @@ const NavbarHeader = ({ onLogout }) => {
                         {label ?? name}
                       </h3>
                     </div>
-                    {/* <span
-                      className={`text-xl font-bold px-2 py-1 rounded-full ${
+                    <span
+                      className={`text-sm font-bold px-2.5 py-0.5 rounded-full min-w-[28px] text-center transition-all ${
                         openTabs.tabs.some(
                           (tab) => tab.id === name && tab.active,
                         )
                           ? "bg-white/20 text-white"
-                          : `${darkMode ? "bg-gray-700/50 text-gray-300" : "bg-gray-100 text-gray-600"}`
+                          : `${darkMode ? "bg-gray-700/60 text-gray-300" : "bg-gray-200/80 text-gray-700"}`
                       }`}
                     >
-                      {value}
-                    </span> */}
+                      {value ?? 0}
+                    </span>
                   </button>
                 ),
               )}
@@ -1162,17 +1179,17 @@ const NavbarHeader = ({ onLogout }) => {
                             {label ?? name}
                           </h3>
                         </div>
-                        {/* <span
-                          className={`text-xl font-bold px-2 py-1 rounded-full ${
+                        <span
+                          className={`text-sm font-bold px-2.5 py-0.5 rounded-full min-w-[28px] text-center transition-all ${
                             openTabs.tabs.some(
                               (tab) => tab.id === name && tab.active,
                             )
                               ? "bg-white/20 text-white"
-                              : `${darkMode ? "bg-gray-700/50 text-gray-300" : "bg-gray-100 text-gray-600"}`
+                              : `${darkMode ? "bg-gray-700/60 text-gray-300" : "bg-gray-200/80 text-gray-700"}`
                           }`}
                         >
-                          {value}
-                        </span> */}
+                          {value ?? 0}
+                        </span>
                       </button>
                     ),
                   )}
@@ -1258,10 +1275,10 @@ const NavbarHeader = ({ onLogout }) => {
                       {nt.selectSidebar}
                     </p>
                     <button
-                      onClick={() => handleTabChange("Piece Receipt")}
+                      onClick={() => handleTabChange("Lot Preparation")}
                       className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all shadow-lg transform hover:-translate-y-0.5"
                     >
-                      {nt.openPieceReceipt}
+                      {nt.openLotPreparation || "Open Lot Preparation"}
                     </button>
                   </div>
                 </div>

@@ -1,8 +1,7 @@
 import { getConnection } from "../constants/db.connection.js";
 
 export async function get(req, res) {
-
-    const { userId } = req.query;
+  const { userId } = req.query;
 
   const connection = await getConnection(res);
 
@@ -10,8 +9,7 @@ export async function get(req, res) {
     const sql = `
       SELECT A.GTCOMPMASTID, A.COMPCODE
       FROM GTCOMPMAST A
-      WHERE A.PTRANSACTION = 'COMPANY'
-        AND A.DIVISION = 'FABRIC'
+     
     `;
 
     const result = await connection.execute(sql);
@@ -22,7 +20,7 @@ export async function get(req, res) {
       result.metaData.reduce((obj, col, index) => {
         obj[col.name] = row[index];
         return obj;
-      }, {})
+      }, {}),
     );
 
     return res.json({ statusCode: 0, data: resp });

@@ -2,8 +2,8 @@ import { getConnection } from "../constants/db.connection.js";
 
 export async function get(req, res) {
   const connection = await getConnection(res);
-  const { branch } = req.query; 
-  console.log(req.query, "req");
+  const { branch } = req.query;
+  console.log(req.query, "lotapicall");
 
   try {
     const sql = `
@@ -34,7 +34,7 @@ export async function get(req, res) {
 }
 export async function getPrepareDet(req, res) {
   const connection = await getConnection(res);
-  const { branch } = req.query; 
+  const { branch } = req.query;
   console.log(req.query, "req");
 
   try {
@@ -44,7 +44,7 @@ export async function getPrepareDet(req, res) {
         COMPCODE = :COMPCODE AND PREPAREDBY IS NOT NULL
       ORDER BY CUSTNAME, BATCHNO
     `;
-    console.log(sql,"sql for prepare")
+    console.log(sql, "sql for prepare");
 
     const result = await connection.execute(sql, { COMPCODE: branch });
 
@@ -89,7 +89,7 @@ WHERE BATCHNO = :batchno AND PROCESSNAME = 'LOT PREPERATION'
       const updateParams = {
         status: data.status,
         batchno: data.BATCHNO,
-        CONTRACTOR: data.CONTRACTORNAME
+        CONTRACTOR: data.CONTRACTORNAME,
       };
 
       const updateResult = await connection.execute(updateSql, updateParams);
@@ -144,7 +144,7 @@ WHERE BATCHNO = :batchno AND PROCESSNAME = 'LOT PREPERATION'
         } catch (insertErr) {
           console.error(
             `Insert failed for BATCHNO: ${data.BATCHNO}`,
-            insertErr
+            insertErr,
           );
         }
       }

@@ -134,7 +134,7 @@ function Signup({ autoLogout }) {
           <div className="lg:w-1/2 p-8 lg:p-10 flex flex-col justify-center">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-[#03A454]">
-                Banu Radha Textiles
+                AMRUTHA KNITS WEAR
               </h2>
             </div>
 
@@ -256,8 +256,9 @@ function Signup({ autoLogout }) {
               </div>
 
               <button
-                className={`w-full py-2 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg shadow transition duration-200 flex items-center justify-center ${isLoading ? "opacity-75 cursor-not-allowed" : ""
-                  }`}
+                className={`w-full py-2 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg shadow transition duration-200 flex items-center justify-center ${
+                  isLoading ? "opacity-75 cursor-not-allowed" : ""
+                }`}
                 type="submit"
                 disabled={isLoading}
               >
