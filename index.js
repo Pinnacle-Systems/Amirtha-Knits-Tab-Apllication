@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { fileURLToPath } from "url";
@@ -120,7 +121,7 @@ app.get("/retreiveFile/:fileName", (req, res) => {
 app.get("*", (req, res) => {
   res.sendFile(path + "index.html");
 });
-const PORT = 9889;
+const PORT = process.env.PORT || 9700;
 const httpServer = createServer(app);
 
 export const io = new Server(httpServer, {

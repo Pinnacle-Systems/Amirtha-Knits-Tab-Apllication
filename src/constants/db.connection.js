@@ -8,14 +8,14 @@ const oracledb = require("oracledb");
 oracledb.initOracleClient({ libDir: process.env.ORACLE_LIB_DIR });
 
 const dbConfig = {
-  user: "PSSBRT",
-  password: "PSSBRT_JULY2025",
-  connectString: "203.95.216.182:1557/avt07p",
+  user: "PSSAKNIT",
+  password: "PSSAKNIT_SEP2026",
+  connectString: "203.95.216.182:1557/AVT07P",
 };
 const brtdbConfig = {
-  user: "PSSBRT",
-  password: "PSSBRT_JULY2025",
-  connectString: "203.95.216.182:1557/avt07p",
+  user: "PSSAKNIT",
+  password: "PSSAKNIT_SEP2026",
+  connectString: "203.95.216.182:1557/AVT07P",
   poolMin: 10, // always keep 10 connections ready
   poolMax: 50, // handle 40+ users comfortably with buffer
   poolIncrement: 5, // grow by 5 at a time under load

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Modal from '@mui/material/Modal';
 import { format } from 'date-fns';
+import commaNumber from 'comma-number';
 import MachineModel from '../Machines/MachineModel';
 import { useDeleteAllocationMutation, useGetAllocationQuery } from '../redux/machineservice';
 import TablePagination from '@mui/material/TablePagination';
@@ -19,7 +20,6 @@ const MachineAllocationData = ({ setDocId }) => {
 
   const { data: AllocationData, refetch } = useGetAllocationQuery({ params: { allocated } });
   console.log(allocated, 'all');
-  const commaNumber = require('comma-number')
   const [deleteAllocation] = useDeleteAllocationMutation()
   const Allocation = useMemo(() => AllocationData?.data ? AllocationData?.data : [], [AllocationData])
 
