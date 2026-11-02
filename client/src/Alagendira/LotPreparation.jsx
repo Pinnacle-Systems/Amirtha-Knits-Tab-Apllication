@@ -534,32 +534,32 @@ const LotPreparation = () => {
             </button>
           </div>
           <div className="detail-view-content">
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-gray-600">{t.color}:</span>
-                <span className="text-gray-900">{mainItem.COLOR}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 sm:gap-y-4">
+              <div className="flex items-baseline gap-2 min-w-0">
+                <span className="font-medium text-gray-600 whitespace-nowrap flex-shrink-0 text-sm">{t.color}:</span>
+                <span className="text-gray-900 break-words text-sm">{mainItem.COLOR || "-"}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-gray-600">{t.fabric}:</span>
-                <span className="text-gray-900">{mainItem.FABRIC}</span>
+              <div className="flex items-baseline gap-2 min-w-0">
+                <span className="font-medium text-gray-600 whitespace-nowrap flex-shrink-0 text-sm">{t.fabric}:</span>
+                <span className="text-gray-900 break-words text-sm">{mainItem.FABRIC || "-"}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-gray-600">{t.route}:</span>
-                <span className="text-gray-900">{mainItem.ROUTE || "-"}</span>
+              <div className="flex items-baseline gap-2 min-w-0">
+                <span className="font-medium text-gray-600 whitespace-nowrap flex-shrink-0 text-sm">{t.route}:</span>
+                <span className="text-gray-900 break-words text-sm">{mainItem.ROUTE || "-"}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-gray-600">{t.grnNo}:</span>
-                <span className="text-gray-900">{mainItem.GRNNO}</span>
+              <div className="flex items-baseline gap-2 min-w-0">
+                <span className="font-medium text-gray-600 whitespace-nowrap flex-shrink-0 text-sm">{t.grnNo}:</span>
+                <span className="text-gray-900 break-words text-sm">{mainItem.GRNNO || "-"}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-gray-600">{t.quantity}:</span>
-                <span className="text-gray-900">
-                  {totalQuantity.toFixed(2)}
+              <div className="flex items-baseline gap-2 min-w-0">
+                <span className="font-medium text-gray-600 whitespace-nowrap flex-shrink-0 text-sm">{t.quantity}:</span>
+                <span className="text-gray-900 break-words text-sm">
+                  {totalQuantity ? totalQuantity.toFixed(2) : "0.00"}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-gray-600">{t.partyDc}:</span>
-                <span className="text-gray-900">{mainItem.PARTYDC}</span>
+              <div className="flex items-baseline gap-2 min-w-0">
+                <span className="font-medium text-gray-600 whitespace-nowrap flex-shrink-0 text-sm">{t.partyDc}:</span>
+                <span className="text-gray-900 break-words text-sm">{mainItem.PARTYDC || "-"}</span>
               </div>
             </div>
 
@@ -856,23 +856,23 @@ const LotPreparation = () => {
   };
 
   return (
-    <div className="">
-      <div className="bg-white p-4 rounded-lg shadow-md">
-        <div className="flex flex-wrap justify-between items-center mt-4 gap-3">
-          <div className="flex items-center gap-2">
-            <div className="relative w-full max-w-sm">
+    <div className="w-full">
+      <div className="bg-white p-3 sm:p-4 rounded-lg shadow-md">
+        <div className="flex flex-col sm:flex-row flex-wrap justify-between items-stretch sm:items-center gap-3">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <div className="relative flex-1 min-w-0 sm:max-w-xs md:max-w-sm">
               <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 placeholder={t.searchPlaceholder}
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-green-400 focus:border-green-400 transition"
+                className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-green-400 focus:border-green-400 transition"
               />
             </div>
             <button
               onClick={() => setViewMode("table")}
-              className={`p-2 rounded-md border ${
+              className={`p-2 rounded-md border flex-shrink-0 ${
                 viewMode === "table"
                   ? "bg-green-500 text-white"
                   : "bg-gray-100 text-gray-700"
@@ -883,7 +883,7 @@ const LotPreparation = () => {
             </button>
             <button
               onClick={() => setViewMode("cards")}
-              className={`p-2 rounded-md border ${
+              className={`p-2 rounded-md border flex-shrink-0 ${
                 viewMode === "cards"
                   ? "bg-green-500 text-white"
                   : "bg-gray-100 text-gray-700"
@@ -894,35 +894,37 @@ const LotPreparation = () => {
             </button>
           </div>
 
-          {filteredData.length > 0 && (
-            <span className="inline-flex items-center bg-green-100 text-green-700 text-sm font-semibold  py-1 rounded-2xl shadow-sm">
-              {filteredData.length} {filteredData.length === 1 ? t.lot : t.lots}
-            </span>
-          )}
+          <div className="flex items-center justify-between sm:justify-end gap-2 flex-shrink-0">
+            {filteredData.length > 0 && (
+              <span className="inline-flex items-center bg-green-100 text-green-700 text-xs sm:text-sm font-semibold px-2.5 sm:px-3 py-1 rounded-2xl shadow-sm whitespace-nowrap">
+                {filteredData.length} {filteredData.length === 1 ? t.lot : t.lots}
+              </span>
+            )}
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowFilterModal(true)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium ${
-                hasActiveFilters
-                  ? "bg-green-600 text-white"
-                  : "border border-gray-300 text-gray-700"
-              } hover:bg-green-500 hover:text-white transition`}
-              title={t.filter}
-            >
-              <FiFilter />
-              {hasActiveFilters && (
-                <span className="w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
-              )}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowFilterModal(true)}
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium whitespace-nowrap ${
+                  hasActiveFilters
+                    ? "bg-green-600 text-white"
+                    : "border border-gray-300 text-gray-700"
+                } hover:bg-green-500 hover:text-white transition`}
+                title={t.filter}
+              >
+                <FiFilter />
+                {hasActiveFilters && (
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+                )}
+              </button>
 
-            <button
-              onClick={refetch}
-              className="p-2 rounded-md bg-gray-100 text-gray-700 hover:bg-green-500 hover:text-white transition"
-              title={t.refresh}
-            >
-              <FiRefreshCw size={18} />
-            </button>
+              <button
+                onClick={refetch}
+                className="p-2 rounded-md bg-gray-100 text-gray-700 hover:bg-green-500 hover:text-white transition flex-shrink-0"
+                title={t.refresh}
+              >
+                <FiRefreshCw size={18} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
