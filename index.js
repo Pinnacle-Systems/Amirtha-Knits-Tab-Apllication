@@ -121,7 +121,7 @@ app.get("/retreiveFile/:fileName", (req, res) => {
 app.get("*", (req, res) => {
   res.sendFile(path + "index.html");
 });
-const PORT = process.env.PORT || 9700;
+const PORT = process.env.PORT || 9996;
 const httpServer = createServer(app);
 
 export const io = new Server(httpServer, {
